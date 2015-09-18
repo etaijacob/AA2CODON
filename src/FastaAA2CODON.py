@@ -502,6 +502,7 @@ def fetchUniprotEntries(fasta, newaccs=None):
         already_exists = True
         lastline = tail(uniprot_file, 1)
         lastline = lastline.rstrip()
+        #TODO: change head linux use to the appropriate python command
         if lastline == "</uniprot>":
             cmd = "head -n -1 " + uniprot_file + " > " + uniprot_file + ".2; " + "mv " + uniprot_file + ".2 " + uniprot_file
             print cmd

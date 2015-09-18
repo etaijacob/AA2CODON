@@ -492,7 +492,7 @@ def getACCsFromSTHfile(pfam):
 
 
 def fetchUniprotEntries(pfam, newaccs=None):
-    print "Fetching uniprot entries as follows.."
+    print "Fetching uniprot entries.."
     uniprot_file = pfam + ".uniprot"
     already_exists = False
     if os.path.isfile(uniprot_file):

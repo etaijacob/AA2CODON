@@ -90,7 +90,7 @@ def tranalign(pfam):
         print dir(record)
         print record.id, record.seq
 
-
+# Priority setup for cds retrieval:
 # 1. RefSeq: NM_,	(mRNA, first one available on the list)
 # 2. RefSeq: XM_, (predicted mRNA, first one available on the list)
 # 3. EMBL: ACCESSION_NUMBER, EMBL|ACCESSION_NUMBER|PROTEIN_ID|-|mRNA, (mRNA)

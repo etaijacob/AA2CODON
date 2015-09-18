@@ -26,7 +26,8 @@ __author__ = 'etai'
 # ----
 # On windows you need to download and install curl http://curl.haxx.se/download.html.
 # The installation configures the curl executable path so no additional configurations are needed.
-
+#
+#
 
 if _platform == "linux" or _platform == "linux2":
     tranalignCmd = "tranalign"

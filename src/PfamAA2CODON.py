@@ -10,6 +10,7 @@ from ConfigParser import RawConfigParser, ConfigParser
 import FetchUtils, Xrefs
 from Protein import Protein
 from sys import platform as _platform
+from AA2CODONUtils import tail
 
 __author__ = 'etai'
 
@@ -346,6 +347,7 @@ def fetchEntries(reftype, pool, fname, add=True):
                 fo.flush()
                 os.fsync(fo)
             if os.path.isfile(fname + "2"):
+                os.remove(fname)
                 os.rename(fname + "2", fname)
         elif reftype == 'emblcds':
             for i in range(0, len(chunks)):
@@ -501,11 +503,14 @@ def fetchUniprotEntries(pfam, newaccs=None):
         already_exists = True
         lastline = tail(uniprot_file, 1)
         lastline = lastline.rstrip()
-#TODO: change head linux use to the appropriate python command
+
         if lastline == "</uniprot>":
-            cmd = "head -n -1 " + uniprot_file + " > " + uniprot_file + ".2; " + "mv " + uniprot_file + ".2 " + uniprot_file
-            print cmd
-            os.system(cmd)
+            lines = file(uniprot_file, 'r').readlines()
+            del lines[-1]
+            file(uniprot_file, 'w').writelines(lines)
+            #cmd = "head -n -1 " + uniprot_file + " > " + uniprot_file + ".2; " + "mv " + uniprot_file + ".2 " + uniprot_file
+            #print cmd
+            #os.system(cmd)
 
     pfam_ids = newaccs
     if newaccs == None:
@@ -542,6 +547,7 @@ def getDataFromUniprot(pfam, accs):
     uniprot_file = pfam + ".uniprot"
     print uniprot_file
     lastline = tail(uniprot_file, 1)
+    lastline = lastline[0]
     if lastline:
         lastline = lastline.rstrip()
         print "::::::::::: " + lastline
@@ -569,16 +575,6 @@ def getDataFromUniprot(pfam, accs):
     print "There are total of " + str(len(proteins)) + " entries mapped in uniprot"
     return proteins
 
-
-def tail(f, n=1):
-    if os.path.isfile(f):
-        stdin, stdout = os.popen2("tail -n " + str(n) + " " + f)
-        stdin.close()
-        lines = stdout.readlines();
-        stdout.close()
-        if lines:
-            return lines[0]
-    return None
 
 
 if __name__ == "__main__":

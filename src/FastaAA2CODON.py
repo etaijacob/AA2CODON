@@ -10,10 +10,11 @@ from collections import defaultdict
 from MyUniprotXML import UniprotIterator
 import subprocess
 import time, json
-from ConfigParser import RawConfigParser, ConfigParser
+import ConfigParser #import RawConfigParser, ConfigParser
 import FetchUtils, Xrefs
 from Protein import Protein
 from sys import platform as _platform
+from AA2CODONUtils import tail
 
 ############################
 # External tools
@@ -173,6 +174,8 @@ def assignAlignseqsToProteins(proteins, fasta):
     alignseqs = defaultdict(dict)
     for record in alignment:
         m = re.search("(\w+)_\d+-\d+", record.id)
+        if m is None:
+            m = re.search("(\w+)/\d+-\d+", record.id)
         acc = m.group(1)
         alignseqs[acc]["seq"] = record.seq
         alignseqs[acc]["id"] = record.id
@@ -341,6 +344,7 @@ def fetchEntries(reftype, pool, fname, add=True):
                 fo.flush()
                 os.fsync(fo)
             if os.path.isfile(fname + "2"):
+                os.remove(fname)
                 os.rename(fname + "2", fname)
         elif reftype == 'emblcds':
             for i in range(0, len(chunks)):
@@ -498,15 +502,20 @@ def fetchUniprotEntries(fasta, newaccs=None):
     print "Fetching uniprot entries.."
     uniprot_file = fasta + ".uniprot"
     already_exists = False
-    if os.path.exists(uniprot_file):
+    if os.path.isfile(uniprot_file):
         already_exists = True
         lastline = tail(uniprot_file, 1)
+        lastline = lastline[0]
         lastline = lastline.rstrip()
+
         #TODO: change head linux use to the appropriate python command
         if lastline == "</uniprot>":
-            cmd = "head -n -1 " + uniprot_file + " > " + uniprot_file + ".2; " + "mv " + uniprot_file + ".2 " + uniprot_file
-            print cmd
-            os.system(cmd)
+            lines = file(uniprot_file, 'r').readlines()
+            del lines[-1]
+            file(uniprot_file, 'w').writelines(lines)
+            #cmd = "head -n -1 " + uniprot_file + " > " + uniprot_file + ".2; " + "mv " + uniprot_file + ".2 " + uniprot_file
+            #print cmd
+            #os.system(cmd)
 
     fasta_ids = newaccs
     if newaccs == None:
@@ -543,6 +552,7 @@ def getDataFromUniprot(fasta, accs):
     uniprot_file = fasta + ".uniprot"
     print uniprot_file
     lastline = tail(uniprot_file, 1)
+    lastline = lastline[0]
     if lastline:
         lastline = lastline.rstrip()
         print "::::::::::: " + lastline
@@ -571,16 +581,6 @@ def getDataFromUniprot(fasta, accs):
     print "There are total of " + str(len(proteins)) + " entries mapped in uniprot"
     return proteins
 
-
-def tail(f, n=1):
-    if os.path.isfile(f):
-        stdin, stdout = os.popen2("tail -n " + str(n) + " " + f)
-        stdin.close()
-        lines = stdout.readlines();
-        stdout.close()
-        if lines:
-            return lines[0]
-    return None
 
 
 if __name__ == "__main__":

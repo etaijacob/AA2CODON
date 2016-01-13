@@ -519,7 +519,7 @@ def fetchUniprotEntries(pfam, newaccs=None):
     already_exists = False
     if os.path.isfile(uniprot_file):
         already_exists = True
-        lastline = tail(uniprot_file, 1)
+        lastline = str(tail(uniprot_file, 1)[0])
         lastline = lastline.rstrip()
 
         if lastline == "</uniprot>":
